@@ -1,0 +1,494 @@
+Python可以应用于众多领域，如：数据分析、组件集成、网络服务、图像处理、数值计算和科学计算等众多领域。目前业内几乎所有大中型互联网企业都在使用Python，如：Youtube、Dropbox、BT、Quora（中国知乎）、豆瓣、知乎、Google、Yahoo!、Facebook、NASA、百度、腾讯、汽车之家、美团等。
+
+目前Python主要应用领域：
+
+    云计算: 云计算最火的语言， 典型应用OpenStack
+    WEB开发: 众多优秀的WEB框架，众多大型网站均为Python开发，Youtube, Dropbox, 豆瓣。。。， 典型WEB框架有Django
+    科学运算、人工智能: 典型库NumPy, SciPy, Matplotlib, Enthought librarys,pandas
+    系统运维: 运维人员必备语言
+    金融：量化交易，金融分析，在金融工程领域，Python不但在用，且用的最多，而且重要性逐年提高。原因：作为动态语言的Python，语言结构清晰简单，库丰富，成熟稳定，科学计算和统计分析都很牛逼，生产效率远远高于c,c++,java,尤其擅长策略回测
+    图形GUI: PyQT, WxPython,TkInter
+
+Python在一些公司的应用：
+
+    谷歌：Google App Engine 、code.google.com 、Google earth 、谷歌爬虫、Google广告等项目都在大量使用Python开发
+    CIA: 美国中情局网站就是用Python开发的
+    NASA: 美国航天局(NASA)大量使用Python进行数据分析和运算
+    YouTube:世界上最大的视频网站YouTube就是用Python开发的
+    Dropbox:美国最大的在线云存储网站，全部用Python实现，每天网站处理10亿个文件的上传和下载
+    Instagram:美国最大的图片分享社交网站，每天超过3千万张照片被分享，全部用python开发
+    Facebook:大量的基础库均通过Python实现的
+    Redhat: 世界上最流行的Linux发行版本中的yum包管理工具就是用python开发的
+    豆瓣: 公司几乎所有的业务均是通过Python开发的
+    知乎: 国内最大的问答社区，通过Python开发(国外Quora)
+    春雨医生：国内知名的在线医疗网站是用Python开发的
+    除上面之外，还有搜狐、金山、腾讯、盛大、网易、百度、阿里、淘宝 、土豆、新浪、果壳等公司都在使用Python完成各种各样的任务。
+
+
+
+
+
+Python 是一门什么样的语言？
+
+    编程语言主要从以下几个角度为进行分类，编译型和解释型、静态语言和动态语言、强类型定义语言和弱类型定义语言，每个分类代表什么意思呢，我们一起来看一下。
+
+编译和解释的区别是什么？
+
+编译器是把源程序的每一条语句都编译成机器语言,并保存成二进制文件,这样运行时计算机可以直接以机器语言来运行此程序,速度很快;
+
+而解释器则是只在执行程序时,才一条一条的解释成机器语言给计算机来执行,所以运行速度是不如编译后的程序运行的快的.
+
+这是因为计算机不能直接认识并执行我们写的语句,它只能认识机器语言(是二进制的形式)
+
+
+编译型vs解释型
+
+编译型
+优点：编译器一般会有预编译的过程对代码进行优化。因为编译只做一次，运行时不需要编译，所以编译型语言的程序执行效率高。可以脱离语言环境独立运行。
+缺点：编译之后如果需要修改就需要整个模块重新编译。编译的时候根据对应的运行环境生成机器码，不同的操作系统之间移植就会有问题，需要根据运行的操作系统环境编译不同的可执行文件。
+
+解释型
+优点：有良好的平台兼容性，在任何环境中都可以运行，前提是安装了解释器（虚拟机）。灵活，修改代码的时候直接修改就可以，可以快速部署，不用停机维护。
+
+缺点：每次运行的时候都要解释一遍，性能上不如编译型语言。
+
+
+Python的优缺点
+
+先看优点
+
+    Python的定位是“优雅”、“明确”、“简单”，所以Python程序看上去总是简单易懂，初学者学Python，不但入门容易，而且将来深入下去，可以编写那些非常非常复杂的程序。
+    开发效率非常高，Python有非常强大的第三方库，基本上你想通过计算机实现任何功能，Python官方库里都有相应的模块进行支持，直接下载调用后，在基础库的基础上再进行开发，大大降低开发周期，避免重复造轮子。
+    高级语言————当你用Python语言编写程序的时候，你无需考虑诸如如何管理你的程序使用的内存一类的底层细节
+    可移植性————由于它的开源本质，Python已经被移植在许多平台上（经过改动使它能够工 作在不同平台上）。如果你小心地避免使用依赖于系统的特性，那么你的所有Python程序无需修改就几乎可以在市场上所有的系统平台上运行
+    可扩展性————如果你需要你的一段关键代码运行得更快或者希望某些算法不公开，你可以把你的部分程序用C或C++编写，然后在你的Python程序中使用它们。
+    可嵌入性————你可以把Python嵌入你的C/C++程序，从而向你的程序用户提供脚本功能。
+
+再看缺点：
+
+    速度慢，Python 的运行速度相比C语言确实慢很多，跟JAVA相比也要慢一些，因此这也是很多所谓的大牛不屑于使用Python的主要原因，但其实这里所指的运行速度慢在大多数情况下用户是无法直接感知到的，必须借助测试工具才能体现出来，比如你用C运一个程序花了0.01s,用Python是0.1s,这样C语言直接比Python快了10倍,算是非常夸张了，但是你是无法直接通过肉眼感知的，因为一个正常人所能感知的时间最小单位是0.15-0.4s左右，哈哈。其实在大多数情况下Python已经完全可以满足你对程序速度的要求，除非你要写对速度要求极高的搜索引擎等，这种情况下，当然还是建议你用C去实现的。
+    代码不能加密，因为PYTHON是解释性语言，它的源码都是以名文形式存放的，不过我不认为这算是一个缺点，如果你的项目要求源代码必须是加密的，那你一开始就不应该用Python来去实现。
+    线程不能利用多CPU问题，这是Python被人诟病最多的一个缺点，GIL即全局解释器锁（Global Interpreter Lock），是计算机程序设计语言解释器用于同步线程的工具，使得任何时刻仅有一个线程在执行，Python的线程是操作系统的原生线程。在Linux上为pthread，在Windows上为Win thread，完全由操作系统调度线程的执行。一个python解释器进程内有一条主线程，以及多条用户程序的执行线程。即使在多核CPU平台上，由于GIL的存在，所以禁止多线程的并行执行。关于这个问题的折衷解决方法，我们在以后线程和进程章节里再进行详细探讨。
+
+
+
+当然，Python还有一些其它的小缺点，在这就不一一列举了，我想说的是，任何一门语言都不是完美的，都有擅长和不擅长做的事情，建议各位不要拿一个语言的劣势去跟另一个语言的优势来去比较，语言只是一个工具，是实现程序设计师思想的工具，就像我们之前中学学几何时，有的时候需要要圆规，有的时候需要用三角尺一样，拿相应的工具去做它最擅长的事才是正确的选择。之前很多人问我Shell和Python到底哪个好？我回答说Shell是个脚本语言，但Python不只是个脚本语言，能做的事情更多，然后又有钻牛角尖的人说完全没必要学Python, Python能做的事情Shell都可以做，只要你足够牛B,然后又举了用Shell可以写俄罗斯方块这样的游戏，对此我能说表达只能是，不要跟SB理论，SB会把你拉到跟他一样的高度，然后用充分的经验把你打倒。
+
+ Python解释器
+
+当我们编写Python代码时，我们得到的是一个包含Python代码的以.py为扩展名的文本文件。要运行代码，就需要Python解释器去执行.py文件。
+
+由于整个Python语言从规范到解释器都是开源的，所以理论上，只要水平够高，任何人都可以编写Python解释器来执行Python代码（当然难度很大）。事实上，确实存在多种Python解释器。
+CPython
+
+当我们从Python官方网站下载并安装好Python 2.7后，我们就直接获得了一个官方版本的解释器：CPython。这个解释器是用C语言开发的，所以叫CPython。在命令行下运行python就是启动CPython解释器。
+
+CPython是使用最广的Python解释器。教程的所有代码也都在CPython下执行。
+IPython
+
+IPython是基于CPython之上的一个交互式解释器，也就是说，IPython只是在交互方式上有所增强，但是执行Python代码的功能和CPython是完全一样的。好比很多国产浏览器虽然外观不同，但内核其实都是调用了IE。
+
+CPython用>>>作为提示符，而IPython用In [序号]:作为提示符。
+PyPy
+
+PyPy是另一个Python解释器，它的目标是执行速度。PyPy采用JIT技术，对Python代码进行动态编译（注意不是解释），所以可以显著提高Python代码的执行速度。
+
+绝大部分Python代码都可以在PyPy下运行，但是PyPy和CPython有一些是不同的，这就导致相同的Python代码在两种解释器下执行可能会有不同的结果。如果你的代码要放到PyPy下执行，就需要了解PyPy和CPython的不同点。
+Jython
+
+Jython是运行在Java平台上的Python解释器，可以直接把Python代码编译成Java字节码执行。
+IronPython
+
+IronPython和Jython类似，只不过IronPython是运行在微软.Net平台上的Python解释器，可以直接把Python代码编译成.Net的字节码。
+小结
+
+Python的解释器很多，但使用最广泛的还是CPython。如果要和Java或.Net平台交互，最好的办法不是用Jython或IronPython，而是通过网络调用来交互，确保各程序之间的独立性。
+
+
+二、Python发展史
+
+    1989年，为了打发圣诞节假期，Guido开始写Python语言的编译器。Python这个名字，来自Guido所挚爱的电视剧Monty Python’s Flying Circus。他希望这个新的叫做Python的语言，能符合他的理想：创造一种C和shell之间，功能全面，易学易用，可拓展的语言。
+    1991年，第一个Python编译器诞生。它是用C语言实现的，并能够调用C语言的库文件。从一出生，Python已经具有了：类，函数，异常处理，包含表和词典在内的核心数据类型，以及模块为基础的拓展系统。
+    Granddaddy of Python web frameworks, Zope 1 was released in 1999
+    Python 1.0 - January 1994 增加了 lambda, map, filter and reduce.
+    Python 2.0 - October 16, 2000，加入了内存回收机制，构成了现在Python语言框架的基础
+    Python 2.4 - November 30, 2004, 同年目前最流行的WEB框架Django 诞生
+    Python 2.5 - September 19, 2006
+    Python 2.6 - October 1, 2008
+    Python 2.7 - July 3, 2010
+    In November 2014, it was announced that Python 2.7 would be supported until 2020, and reaffirmed that there would be no 2.8 release as users were expected to move to Python 3.4+ as soon as possible
+    Python 3.0 - December 3, 2008
+    Python 3.1 - June 27, 2009
+    Python 3.2 - February 20, 2011
+    Python 3.3 - September 29, 2012
+    Python 3.4 - March 16, 2014
+    Python 3.5 - September 13, 2015
+
+
+
+
+
+四、Python安装
+windows
+
+
+1、下载安装包
+    https://www.python.org/downloads/
+2、安装
+    默认安装路径：C:\python27
+3、配置环境变量
+    【右键计算机】--》【属性】--》【高级系统设置】--》【高级】--》【环境变量】--》【在第二个内容框中找到 变量名为Path 的一行，双击】 --> 【Python安装目录追加到变值值中，用 ； 分割】
+    如：原来的值;C:\python27，切记前面有分号
+
+linux、Mac
+1
+2
+3
+
+无需安装，原装Python环境
+
+ps：如果自带2.6，请更新至2.7
+
+　　
+五、Hello World程序
+
+在linux 下创建一个文件叫hello.py,并输入
+1
+
+print("Hello World!")
+
+然后执行命令:python hello.py ,输出
+1
+2
+3
+
+localhost:~ jieli$ vim hello.py
+localhost:~ jieli$ python hello.py
+Hello World!
+
+指定解释器
+
+上一步中执行 python hello.py 时，明确的指出 hello.py 脚本由 python 解释器来执行。
+
+如果想要类似于执行shell脚本一样执行python脚本，例： ./hello.py ，那么就需要在 hello.py 文件的头部指定解释器，如下：
+1
+2
+3
+
+#!/usr/bin/env python
+
+print "hello,world"
+
+如此一来，执行： ./hello.py 即可。
+
+ps：执行前需给予 hello.py 执行权限，chmod 755 hello.py
+
+在交互器中执行　
+
+除了把程序写在文件里，还可以直接调用python自带的交互器运行代码，　
+
+
+localhost:~ jieli$ python
+Python 2.7.10 (default, Oct 23 2015, 18:05:06)
+[GCC 4.2.1 Compatible Apple LLVM 7.0.0 (clang-700.0.59.5)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print("Hello World!")
+Hello World!
+
+对比下其它语言的hello world
+
+
+对比下其它语言的hello world
+
+
+C++
+1 #include <iostream>
+2 int main(void)
+3 {
+4 std::cout<<"Hello world";
+5 }
+
+
+C
+复制代码
+
+1 #include <stdio.h>
+2 int main(void)
+3 {
+4 printf("\nhello world!");
+5 return 0;
+6 }
+
+复制代码
+
+
+JAVA
+复制代码
+
+1 public class HelloWorld{
+2   // 程序的入口
+3   public static void main(String args[]){
+4     // 向控制台输出信息
+5     System.out.println("Hello World!");
+6   }
+7 }
+
+
+
+
+PHP
+复制代码
+
+1 <?php
+2             echo "hello world!";
+3 ?>
+
+
+
+RUBY
+1 puts "Hello world."
+
+
+
+
+GO
+
+复制代码
+
+1 package main
+2
+3 import "fmt"
+4
+5 func main(){
+6
+7     fmt.Printf("Hello World!\n God Bless You!");
+8
+9 }
+
+
+
+
+八、用户输入　
+#!/usr/bin/env python
+#_*_coding:utf-8_*_
+
+
+#name = raw_input("What is your name?") #only on python 2.x
+name = input("What is your name?")
+print("Hello " + name )
+
+输入密码时，如果想要不可见，需要利用getpass 模块中的 getpass方法，即：
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import getpass
+
+# 将用户输入的内容赋值给 name 变量
+pwd = getpass.getpass("请输入密码：")
+
+# 打印输入的内容
+print(pwd)
+
+
+九、模块初识　　
+
+Python的强大之处在于他有非常丰富和强大的标准库和第三方库，几乎你想实现的任何功能都有相应的Python库支持，以后的课程中会深入讲解常用到的各种库，现在，我们先来象征性的学2个简单的。
+
+sys
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+
+print(sys.argv)
+
+
+#输出
+$ python test.py helo world
+['test.py', 'helo', 'world']  #把执行脚本时传递的参数获取到了
+
+　　
+
+os
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+
+os.system("df -h") #调用系统命令
+
+完全结合一下　　
+import os,sys
+
+os.system(''.join(sys.argv[1:])) #把用户的输入的参数当作一条命令交给os.system来执行
+
+
+
+十、.pyc是个什么鬼？
+
+1. Python是一门解释型语言？
+
+我初学Python时，听到的关于Python的第一句话就是，Python是一门解释性语言，我就这样一直相信下去，直到发现了*.pyc文件的存在。如果是解释型语言，那么生成的*.pyc文件是什么呢？c应该是compiled的缩写才对啊！
+
+为了防止其他学习Python的人也被这句话误解，那么我们就在文中来澄清下这个问题，并且把一些基础概念给理清。
+
+
+
+2. 解释型语言和编译型语言
+
+计算机是不能够识别高级语言的，所以当我们运行一个高级语言程序的时候，就需要一个“翻译机”来从事把高级语言转变成计算机能读懂的机器语言的过程。这个过程分成两类，第一种是编译，第二种是解释。
+
+编译型语言在程序执行之前，先会通过编译器对程序执行一个编译的过程，把程序转变成机器语言。运行时就不需要翻译，而直接执行就可以了。最典型的例子就是C语言。
+
+解释型语言就没有这个编译的过程，而是在程序运行的时候，通过解释器对程序逐行作出解释，然后直接运行，最典型的例子是Ruby。
+
+通过以上的例子，我们可以来总结一下解释型语言和编译型语言的优缺点，因为编译型语言在程序运行之前就已经对程序做出了“翻译”，所以在运行时就少掉了“翻译”的过程，所以效率比较高。但是我们也不能一概而论，一些解释型语言也可以通过解释器的优化来在对程序做出翻译时对整个程序做出优化，从而在效率上超过编译型语言。
+
+此外，随着Java等基于虚拟机的语言的兴起，我们又不能把语言纯粹地分成解释型和编译型这两种。
+
+用Java来举例，Java首先是通过编译器编译成字节码文件，然后在运行时通过解释器给解释成机器文件。所以我们说Java是一种先编译后解释的语言。
+
+
+
+3. Python到底是什么
+
+其实Python和Java/C#一样，也是一门基于虚拟机的语言，我们先来从表面上简单地了解一下Python程序的运行过程吧。
+
+当我们在命令行中输入python hello.py时，其实是激活了Python的“解释器”，告诉“解释器”：你要开始工作了。可是在“解释”之前，其实执行的第一项工作和Java一样，是编译。
+
+熟悉Java的同学可以想一下我们在命令行中如何执行一个Java的程序：
+
+javac hello.java
+
+java hello
+
+
+
+只是我们在用Eclipse之类的IDE时，将这两部给融合成了一部而已。其实Python也一样，当我们执行python hello.py时，他也一样执行了这么一个过程，所以我们应该这样来描述Python，Python是一门先编译后解释的语言。
+
+4. 简述Python的运行过程
+
+在说这个问题之前，我们先来说两个概念，PyCodeObject和pyc文件。
+
+我们在硬盘上看到的pyc自然不必多说，而其实PyCodeObject则是Python编译器真正编译成的结果。我们先简单知道就可以了，继续向下看。
+
+当python程序运行时，编译的结果则是保存在位于内存中的PyCodeObject中，当Python程序运行结束时，Python解释器则将PyCodeObject写回到pyc文件中。
+
+当python程序第二次运行时，首先程序会在硬盘中寻找pyc文件，如果找到，则直接载入，否则就重复上面的过程。
+
+所以我们应该这样来定位PyCodeObject和pyc文件，我们说pyc文件其实是PyCodeObject的一种持久化保存方式。
+
+
+
+十一、数据类型初识
+1、数字
+
+    2 是一个整数的例子。
+    长整数 不过是大一些的整数。
+    3.23和52.3E-4是浮点数的例子。E标记表示10的幂。在这里，52.3E-4表示52.3 * 10-4。
+    (-5+4j)和(2.3-4.6j)是复数的例子，其中-5,4为实数，j为虚数，数学中表示复数是什么？。
+
+int（整型）
+　　在32位机器上，整数的位数为32位，取值范围为-2**31～2**31-1，即-2147483648～2147483647
+　　在64位系统上，整数的位数为64位，取值范围为-2**63～2**63-1，即-9223372036854775808～9223372036854775807
+long（长整型）
+　　跟C语言不同，Python的长整数没有指定位宽，即：Python没有限制长整数数值的大小，但实际上由于机器内存有限，我们使用的长整数数值不可能无限大。
+　　注意，自从Python2.2起，如果整数发生溢出，Python会自动将整数数据转换为长整数，所以如今在长整数数据后面不加字母L也不会导致严重后果了。
+float（浮点型）
+      先扫盲 http://www.cnblogs.com/alex3714/articles/5895848.html
+　　浮点数用来处理实数，即带有小数的数字。类似于C语言中的double类型，占8个字节（64位），其中52位表示底，11位表示指数，剩下的一位表示符号。
+complex（复数）
+　　复数由实数部分和虚数部分组成，一般形式为x＋yj，其中的x是复数的实数部分，y是复数的虚数部分，这里的x和y都是实数。
+注：Python中存在小数字池：-5 ～ 257
+
+
+
+
+2、布尔值
+　　真或假
+　　1 或 0
+
+
+
+
+3、字符串
+
+    "hello world"
+
+万恶的字符串拼接：
+　　python中的字符串在C语言中体现为是一个字符数组，每次创建字符串时候需要在内存中开辟一块连续的空，并且一旦需要修改字符串的话，就需要再次开辟空间，万恶的+号每出现一次就会在内从中重新开辟一块空间。
+字符串格式化输出
+
+name = "alex"
+print "i am %s " % name
+
+#输出: i am alex
+
+PS: 字符串是 %s;整数 %d;浮点数%f
+字符串常用功能：
+
+    移除空白
+    分割
+    长度
+    索引
+    切片
+
+
+
+
+
+4、列表
+创建列表：
+name_list = ['alex', 'seven', 'eric']
+或
+name_list ＝ list(['alex', 'seven', 'eric'])
+
+基本操作：
+
+    索引
+    切片
+    追加
+    删除
+    长度
+    切片
+    循环
+    包含
+
+
+
+
+
+5、元组(不可变列表)
+创建元组：
+
+
+ages = (11, 22, 33, 44, 55)
+或
+ages = tuple((11, 22, 33, 44, 55))
+
+6、字典（无序）
+创建字典：
+
+person = {"name": "mr.wu", 'age': 18}
+或
+person = dict({"name": "mr.wu", 'age': 18})
+
+常用操作：
+
+    索引
+    新增
+    删除
+    键、值、键值对
+    循环
+    长度
+
+
+
+
+
+
+
+
+
+
