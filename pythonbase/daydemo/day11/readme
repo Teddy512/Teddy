@@ -1,0 +1,546 @@
+
+RabbitMQ的应用场景以及基本原理介绍
+
+RabbitMQ介绍
+
+RabbitMQ是实现AMQP（高级消息队列协议）的消息中间件的一种，最初起源于金融系统，用于在分布式系统中存储转发消息，在易用性、扩展性、
+高可用性等方面表现不俗。RabbitMQ主要是为了实现系统之间的双向解耦而实现的。当生产者大量产生数据时，消费者无法快速消费，那么需要一个中间层。保存这个数据。
+AMQP，即Advanced Message Queuing Protocol，高级消息队列协议，是应用层协议的一个开放标准，为面向消息的中间件设计。
+消息中间件主要用于组件之间的解耦，消息的发送者无需知道消息使用者的存在，反之亦然。AMQP的主要特征是面向消息、队列、路由
+（包括点对点和发布/订阅）、可靠性、安全。
+
+Direct Exchange
+Direct Exchange是RabbitMQ默认的交换机模式，也是最简单的模式，根据key全文匹配去寻找队列。
+RabbitMQ是一个开源的AMQP实现，服务器端用Erlang语言编写，支持多种客户端，如：Python、Ruby、.NET、Java、JMS、C、PHP、ActionScript、XMPP、STOMP等，支持AJAX。用于在分布式系统中存储转发消息，在易用性、扩展性、高可用性等方面表现不俗。
+
+1.背景
+
+RabbitMQ是一个由erlang开发的AMQP(Advanved Message Queue [高级消息队列])的开源实现。
+2.应用场景
+2.1异步处理
+
+
+场景说明：
+用户注册后，需要发注册邮件和注册短信,传统的做法有两种1.串行的方式;2.并行的方式
+(1)串行方式:将注册信息写入数据库后,发送注册邮件,再发送注册短信,以上三个任务全部完成后才返回给客户端。
+ 这有一个问题是,邮件,短信并不是必须的,它只是一个通知,而这种做法让客户端等待没有必要等待的东西.
+
+                         图片 mq1
+
+(2)并行方式:将注册信息写入数据库后,发送邮件的同时,发送短信,以上三个任务完成后,返回给客户端,并行的方式能提高处理的时间。
+
+                         图片 mq1
+
+
+假设三个业务节点分别使用50ms,串行方式使用时间150ms,并行使用时间100ms。虽然并性已经提高的处理时间,但是,前面说过,邮件和短信对我正常的使用网站没有任何影响，客户端没有必要等着其发送完成才显示注册成功,英爱是写入数据库后就返回.
+(3)消息队列
+引入消息队列后，把发送邮件,短信不是必须的业务逻辑异步处理
+                               图片 mq3
+
+
+由此可以看出,引入消息队列后，用户的响应时间就等于写入数据库的时间+写入消息队列的时间(可以忽略不计),引入消息队列后处理后,响应时间是串行的3倍,是并行的2倍。
+
+2.2 应用解耦
+
+场景：双11是购物狂节,用户下单后,订单系统需要通知库存系统,传统的做法就是订单系统调用库存系统的接口.
+                             图片 mq4
+
+这种做法有一个缺点:
+
+    当库存系统出现故障时,订单就会失败。(这样马云将少赚好多好多钱^ ^)
+
+    订单系统和库存系统高耦合.
+    引入消息队列
+                            图片 m5
+
+
+    订单系统:用户下单后,订单系统完成持久化处理,将消息写入消息队列,返回用户订单下单成功。
+    库存系统:订阅下单的消息,获取下单消息,进行库操作。
+    就算库存系统出现故障,消息队列也能保证消息的可靠投递,不会导致消息丢失(马云这下高兴了).
+
+
+
+                                 图片 m6
+
+
+
+流量削峰
+
+流量削峰一般在秒杀活动中应用广泛
+场景:秒杀活动，一般会因为流量过大，导致应用挂掉,为了解决这个问题，一般在应用前端加入消息队列。
+作用:
+1.可以控制活动人数，超过此一定阀值的订单直接丢弃(我为什么秒杀一次都没有成功过呢^^)
+2.可以缓解短时间的高流量压垮应用(应用程序按自己的最大处理能力获取订单)
+
+
+1.用户的请求,服务器收到之后,首先写入消息队列,加入消息队列长度超过最大值,则直接抛弃用户请求或跳转到错误页面.
+2.秒杀业务根据消息队列中的请求信息，再做后续处理.
+
+
+
+
+
+
+
+3.系统架构
+ 图片 xtjg
+
+
+几个概念说明:
+Broker:它提供一种传输服务,它的角色就是维护一条从生产者到消费者的路线，保证数据能按照指定的方式进行传输,
+Exchange：消息交换机,它指定消息按什么规则,路由到哪个队列。
+Queue:消息的载体,每个消息都会被投到一个或多个队列。
+Binding:绑定，它的作用就是把exchange和queue按照路由规则绑定起来.
+Routing Key:路由关键字,exchange根据这个关键字进行消息投递。
+vhost:虚拟主机,一个broker里可以有多个vhost，用作不同用户的权限分离。
+Producer:消息生产者,就是投递消息的程序.
+Consumer:消息消费者,就是接受消息的程序.
+Channel:消息通道,在客户端的每个连接里,可建立多个channel.
+
+
+4.任务分发机制
+4.1Round-robin dispathching循环分发
+
+RabbbitMQ的分发机制非常适合扩展,而且它是专门为并发程序设计的,如果现在load加重,那么只需要创建更多的Consumer来进行任务处理。
+4.2Message acknowledgment消息确认
+
+为了保证数据不被丢失,RabbitMQ支持消息确认机制,为了保证数据能被正确处理而不仅仅是被Consumer收到,那么我们不能采用no-ack，而应该是在处理完数据之后发送ack.
+在处理完数据之后发送ack,就是告诉RabbitMQ数据已经被接收,处理完成,RabbitMQ可以安全的删除它了.
+如果Consumer退出了但是没有发送ack,那么RabbitMQ就会把这个Message发送到下一个Consumer，这样就保证在Consumer异常退出情况下数据也不会丢失.
+RabbitMQ它没有用到超时机制.RabbitMQ仅仅通过Consumer的连接中断来确认该Message并没有正确处理，也就是说RabbitMQ给了Consumer足够长的时间做数据处理。
+如果忘记ack,那么当Consumer退出时,Mesage会重新分发,然后RabbitMQ会占用越来越多的内存.
+
+
+
+5.Message durability消息持久化
+
+要持久化队列queue的持久化需要在声明时指定durable=True;
+这里要注意,队列的名字一定要是Broker中不存在的,不然不能改变此队列的任何属性.
+队列和交换机有一个创建时候指定的标志durable,durable的唯一含义就是具有这个标志的队列和交换机会在重启之后重新建立,它不表示说在队列中的消息会在重启后恢复
+消息持久化包括3部分
+1. exchange持久化,在声明时指定durable => true
+channel.ExchangeDeclare(ExchangeName, "direct", durable: true, autoDelete: false, arguments: null);//声明消息队列，且为可持久化的
+
+
+2.queue持久化,在声明时指定durable => true
+channel.QueueDeclare(QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);//声明消息队列，且为可持久化的
+
+3.消息持久化,在投递时指定delivery_mode => 2(1是非持久化).
+channel.basicPublish("", queueName, MessageProperties.PERSISTENT_TEXT_PLAIN, m
+
+如果exchange和queue都是持久化的,那么它们之间的binding也是持久化的,如果exchange和queue两者之间有一个持久化，一个非持久化,则不允许建立绑定.
+注意：一旦创建了队列和交换机,就不能修改其标志了,例如,创建了一个non-durable的队列,然后想把它改变成durable的,唯一的办法就是删除这个队列然后重现创建
+
+6.Fair dispath 公平分发
+你可能也注意到了,分发机制不是那么优雅,默认状态下,RabbitMQ将第n个Message分发给第n个Consumer。n是取余后的,它不管Consumer是否还有unacked Message，只是按照这个默认的机制进行分发.
+那么如果有个Consumer工作比较重,那么就会导致有的Consumer基本没事可做,有的Consumer却毫无休息的机会,那么,Rabbit是如何处理这种问题呢?
+
+ 图片 fair
+
+ 通过basic.qos方法设置prefetch_count=1，这样RabbitMQ就会使得每个Consumer在同一个时间点最多处理一个Message，换句话说,在接收到该Consumer的ack前,它不会将新的Message分发给它
+
+          channel.basic_qos(prefetch_count=1)
+
+注意，这种方法可能会导致queue满。当然，这种情况下你可能需要添加更多的Consumer，或者创建更多的virtualHost来细化你的设计。
+
+
+
+7.分发到多个Consumer
+7.1Exchange
+
+先来温习以下交换机路由的几种类型:
+Direct Exchange:直接匹配,通过Exchange名称+RountingKey来发送与接收消息.
+Fanout Exchange:广播订阅,向所有的消费者发布消息,但是只有消费者将队列绑定到该路由器才能收到消息,忽略Routing Key.
+Topic Exchange：主题匹配订阅,这里的主题指的是RoutingKey,RoutingKey可以采用通配符,如:*或#，RoutingKey命名采用.来分隔多个词,只有消息这将队列绑定到该路由器且指定RoutingKey符合匹配规则时才能收到消息;
+Headers Exchange:消息头订阅,消息发布前,为消息定义一个或多个键值对的消息头,然后消费者接收消息同时需要定义类似的键值对请求头:(如:x-mactch=all或者x_match=any)，只有请求头与消息头匹配,才能接收消息,忽略RoutingKey.
+默认的exchange:如果用空字符串去声明一个exchange，那么系统就会使用”amq.direct”这个exchange，我们创建一个queue时,默认的都会有一个和新建queue同名的routingKey绑定到这个默认的exchange上去
+
+channel.BasicPublish("", "TaskQueue", properties, bytes);
+
+
+因为在第一个参数选择了默认的exchange，而我们申明的队列叫TaskQueue，所以默认的，它在新建一个也叫TaskQueue的routingKey，并绑定在默认的exchange上，导致了我们可以在第二个参数routingKey中写TaskQueue，这样它就会找到定义的同名的queue，并把消息放进去。
+如果有两个接收程序都是用了同一个的queue和相同的routingKey去绑定direct exchange的话，分发的行为是负载均衡的，也就是说第一个是程序1收到，第二个是程序2收到，以此类推。
+如果有两个接收程序用了各自的queue，但使用相同的routingKey去绑定direct exchange的话，分发的行为是复制的，也就是说每个程序都会收到这个消息的副本。行为相当于fanout类型的exchange。
+下面详细来说:
+7.2 Bindings 绑定
+
+绑定其实就是关联了exchange和queue，或者这么说:queue对exchange的内容感兴趣,exchange要把它的Message deliver到queue。
+7.3Direct exchange
+
+Driect exchange的路由算法非常简单:通过bindingkey的完全匹配，可以用下图来说明.
+
+
+                                    图片 pp
+   Exchange和两个队列绑定在一起,Q1的bindingkey是orange，Q2的binding key是black和green.
+当Producer publish key是orange时,exchange会把它放到Q1上,如果是black或green就会到Q2上,其余的Message被丢弃.
+
+
+                                    图片 qq
+
+
+
+ 7.4 Multiple bindings
+
+多个queue绑定同一个key也是可以的,对于下图的例子,Q1和Q2都绑定了black,对于routing key是black的Message，会被deliver到Q1和Q2，其余的Message都会被丢弃.
+这里写图片描述
+7.5 Topic exchange
+
+对于Message的routing_key是有限制的，不能使任意的。格式是以点号“.”分割的字符表。比如：”stock.usd.nyse”, “nyse.vmw”, “quick.orange.rabbit”。你可以放任意的key在routing_key中，当然最长不能超过255 bytes。
+对于routing_key，有两个特殊字符
+
+    *(星号)代表任意一个单词
+
+    #(hash)0个或多个单词
+
+                                      图片 ww
+
+
+
+
+    Producer发送消息时需要设置routing_key，routing_key包含三个单词和连个点号o,第一个key描述了celerity(灵巧),第二个是color(色彩),第三个是物种:
+    在这里我们创建了两个绑定： Q1 的binding key 是”.orange.“； Q2 是 “..rabbit” 和 “lazy.#”：
+        Q1感兴趣所有orange颜色的动物
+        Q2感兴趣所有rabbits和所有的lazy的.
+        例子:rounting_key 为 “quick.orange.rabbit”将会发送到Q1和Q2中
+        rounting_key 为”lazy.orange.rabbit.hujj.ddd”会被投递到Q2中,#匹配0个或多个单词。
+
+8.消息序列化
+
+RabbitMQ使用ProtoBuf序列化消息,它可作为RabbitMQ的Message的数据格式进行传输,由于是结构化的数据,这样就极大的方便了Consumer的数据高效处理,当然也可以使用XML，与XML相比,ProtoBuf有以下优势:
+1.简单
+2.size小了3-10倍
+3.速度快了20-100倍
+4.易于编程
+6.减少了语义的歧义.
+，ProtoBuf具有速度和空间的优势，使得它现在应用非常广泛
+
+
+
+消息公平分发
+
+如果Rabbit只管按顺序把消息发到各个消费者身上，不考虑消费者负载的话，很可能出现，一个机器配置不高的消费者那里堆积了很多消息处理不完，同时配置高的消费者却一直很轻松。为解决此问题，可以在各个消费者端，
+配置perfetch=1,意思就是告诉RabbitMQ在我这个消费者当前消息还没处理完的时候就不要再给我发新消息了。
+
+channel.basic_qos(prefetch_count=1)
+
+
+
+简介：
+
+MongoDB 是一个基于分布式文件存储的数据库。由 C++ 语言编写。旨在为 WEB 应用提供可扩展的高性能数据存储解决方案。
+
+MongoDB 是一个介于关系数据库和非关系数据库之间的产品，是非关系数据库当中功能最丰富，最像关系数据库的。
+
+NoSQL 简介
+
+NoSQL(NoSQL = Not Only SQL )，意即"不仅仅是SQL"。
+
+在现代的计算系统上每天网络上都会产生庞大的数据量。
+
+这些数据有很大一部分是由关系数据库管理系统（RDBMS）来处理。 1970年 E.F.Codd's提出的关系模型的论文 "A relational model of data for large shared data banks"，这使得数据建模和应用程序编程更加简单。
+
+通过应用实践证明，关系模型是非常适合于客户服务器编程，远远超出预期的利益，今天它是结构化数据存储在网络和商务应用的主导技术。
+
+NoSQL 是一项全新的数据库革命性运动，早期就有人提出，发展至2009年趋势越发高涨。NoSQL的拥护者们提倡运用非关系型的数据存储，相对于铺天盖地的关系型数据库运用，这一概念无疑是一种全新的思维的注入
+
+
+关系型数据库遵循ACID规则
+
+事务在英文中是transaction，和现实世界中的交易很类似，它有如下四个特性：
+
+1、A (Atomicity) 原子性
+
+原子性很容易理解，也就是说事务里的所有操作要么全部做完，要么都不做，事务成功的条件是事务里的所有操作都成功，只要有一个操作失败，整个事务就失败，需要回滚。
+
+比如银行转账，从A账户转100元至B账户，分为两个步骤：1）从A账户取100元；2）存入100元至B账户。这两步要么一起完成，要么一起不完成，如果只完成第一步，第二步失败，钱会莫名其妙少了100元。
+
+2、C (Consistency) 一致性
+
+一致性也比较容易理解，也就是说数据库要一直处于一致的状态，事务的运行不会改变数据库原本的一致性约束。
+
+例如现有完整性约束a+b=10，如果一个事务改变了a，那么必须得改变b，使得事务结束后依然满足a+b=10，否则事务失败。
+
+3、I (Isolation) 独立性
+
+所谓的独立性是指并发的事务之间不会互相影响，如果一个事务要访问的数据正在被另外一个事务修改，只要另外一个事务未提交，它所访问的数据就不受未提交事务的影响。
+
+比如现在有个交易是从A账户转100元至B账户，在这个交易还未完成的情况下，如果此时B查询自己的账户，是看不到新增加的100元的。
+
+4、D (Durability) 持久性
+
+持久性是指一旦事务提交后，它所做的修改将会永久的保存在数据库上，即使出现宕机也不会丢失。
+
+分布式系统
+
+分布式系统（distributed system）由多台计算机和通信的软件组件通过计算机网络连接（本地网络或广域网）组成。
+
+分布式系统是建立在网络之上的软件系统。正是因为软件的特性，所以分布式系统具有高度的内聚性和透明性。
+
+因此，网络和分布式系统之间的区别更多的在于高层软件（特别是操作系统），而不是硬件。
+
+分布式系统可以应用在不同的平台上如：Pc、工作站、局域网和广域网上等。
+
+分布式计算的优点
+
+可靠性（容错） ：
+
+分布式计算系统中的一个重要的优点是可靠性。一台服务器的系统崩溃并不影响到其余的服务器。
+
+可扩展性：
+
+在分布式计算系统可以根据需要增加更多的机器。
+
+资源共享：
+
+共享数据是必不可少的应用，如银行，预订系统。
+
+灵活性：
+
+由于该系统是非常灵活的，它很容易安装，实施和调试新的服务。
+
+更快的速度：
+
+分布式计算系统可以有多台计算机的计算能力，使得它比其他系统有更快的处理速度。
+
+开放系统：
+
+由于它是开放的系统，本地或者远程都可以访问到该服务。
+
+更高的性能：
+
+相较于集中式计算机网络集群可以提供更高的性能（及更好的性价比）。
+
+分布式计算的缺点
+
+故障排除：
+
+故障排除和诊断问题。
+
+软件：
+
+更少的软件支持是分布式计算系统的主要缺点。
+
+网络：
+
+网络基础设施的问题，包括：传输问题，高负载，信息丢失等。
+
+安全性：
+
+开放系统的特性让分布式计算系统存在着数据的安全性和共享的风险等问题。
+
+什么是NoSQL?
+
+NoSQL，指的是非关系型的数据库。NoSQL有时也称作Not Only SQL的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称。
+
+NoSQL用于超大规模数据的存储。（例如谷歌或Facebook每天为他们的用户收集万亿比特的数据）。这些类型的数据存储不需要固定的模式，
+无需多余操作就可以横向扩展。
+为什么使用NoSQL ?
+
+今天我们可以通过第三方平台（如：Google,Facebook等）可以很容易的访问和抓取数据。用户的个人信息，社交网络，地理位置，
+用户生成的数据和用户操作日志已经成倍的增加。我们如果要对这些用户数据进行挖掘，
+那SQL数据库已经不适合这些应用了, NoSQL数据库的发展也却能很好的处理这些大的数据。
+
+RDBMS vs NoSQL
+
+RDBMS
+- 高度组织化结构化数据
+- 结构化查询语言（SQL） (SQL)
+- 数据和关系都存储在单独的表中。
+- 数据操纵语言，数据定义语言
+- 严格的一致性
+- 基础事务
+
+NoSQL
+- 代表着不仅仅是SQL
+- 没有声明性查询语言
+- 没有预定义的模式
+-键 - 值对存储，列存储，文档存储，图形数据库
+- 最终一致性，而非ACID属性
+- 非结构化和不可预知的数据
+- CAP定理
+- 高性能，高可用性和可伸缩性
+NoSQL 简史
+
+NoSQL一词最早出现于1998年，是Carlo Strozzi开发的一个轻量、开源、不提供SQL功能的关系数据库。
+
+2009年，Last.fm的Johan Oskarsson发起了一次关于分布式开源数据库的讨论[2]，来自Rackspace的Eric Evans再次提出了NoSQL的概念，这时的NoSQL主要指非关系型、分布式、不提供ACID的数据库设计模式。
+
+2009年在亚特兰大举行的"no:sql(east)"讨论会是一个里程碑，其口号是"select fun, profit from real_world where relational=false;"。因此，对NoSQL最普遍的解释是"非关联型的"，强调Key-Value Stores和文档数据库的优点，而不是单纯的反对RDBMS。
+
+CAP定理（CAP theorem）
+
+在计算机科学中, CAP定理（CAP theorem）, 又被称作 布鲁尔定理（Brewer's theorem）, 它指出对于一个分布式计算系统来说，不可能同时满足以下三点:
+
+    一致性(Consistency) (所有节点在同一时间具有相同的数据)
+    可用性(Availability) (保证每个请求不管成功或者失败都有响应)
+    分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)
+
+CAP理论的核心是：一个分布式系统不可能同时很好的满足一致性，可用性和分区容错性这三个需求，最多只能同时较好的满足两个。
+
+因此，根据 CAP 原理将 NoSQL 数据库分成了满足 CA 原则、满足 CP 原则和满足 AP 原则三 大类：
+
+    CA - 单点集群，满足一致性，可用性的系统，通常在可扩展性上不太强大。
+    CP - 满足一致性，分区容忍性的系统，通常性能不是特别高。
+    AP - 满足可用性，分区容忍性的系统，通常可能对一致性要求低一些。
+
+
+
+NoSQL的优点/缺点
+
+优点:
+
+    - 高可扩展性
+    - 分布式计算
+    - 低成本
+    - 架构的灵活性，半结构化数据
+    - 没有复杂的关系
+
+缺点:
+
+    - 没有标准化
+    - 有限的查询功能（到目前为止）
+    - 最终一致是不直观的程序
+
+
+BASE
+
+BASE：Basically Available, Soft-state, Eventually Consistent。 由 Eric Brewer 定义。
+
+CAP理论的核心是：一个分布式系统不可能同时很好的满足一致性，可用性和分区容错性这三个需求，最多只能同时较好的满足两个。
+
+BASE是NoSQL数据库通常对可用性及一致性的弱要求原则:
+
+    Basically Availble --基本可用
+    Soft-state --软状态/柔性事务。 "Soft state" 可以理解为"无连接"的, 而 "Hard state" 是"面向连接"的
+    Eventual Consistency -- 最终一致性， 也是是 ACID 的最终目的。
+
+
+ACID vs BASE
+ACID 	BASE
+原子性(Atomicity) 	基本可用(Basically Available)
+一致性(Consistency) 	软状态/柔性事务(Soft state)
+隔离性(Isolation) 	最终一致性 (Eventual consistency)
+持久性 (Durable)
+
+NoSQL 数据库分类
+类型 	部分代表
+
+	特点
+列存储
+
+Hbase
+
+Cassandra
+
+Hypertable
+
+
+顾名思义，是按列存储数据的。最大的特点是方便存储结构化和半结构化数据，方便做数据压缩，对针对某一列或者某几列的查询有非常大的IO优势。
+
+文档存储
+
+
+MongoDB
+
+CouchDB
+
+
+文档存储一般用类似json的格式存储，存储的内容是文档型的。这样也就有有机会对某些字段建立索引，实现关系数据库的某些功能。
+
+key-value存储
+
+
+Tokyo Cabinet / Tyrant
+
+Berkeley DB
+
+MemcacheDB
+
+Redis
+
+
+可以通过key快速查询到其value。一般来说，存储不管value的格式，照单全收。（Redis包含了其他功能）
+
+图存储
+
+
+Neo4J
+
+FlockDB
+
+
+图形关系的最佳存储。使用传统关系数据库来解决的话性能低下，而且设计使用不方便。
+
+对象存储
+
+
+db4o
+
+Versant
+
+
+通过类似面向对象语言的语法操作数据库，通过对象的方式存取数据。
+
+xml数据库
+
+
+Berkeley DB XML
+
+BaseX
+
+
+高效的存储XML数据，并支持XML的内部查询语法，比如XQuery,Xpath。
+
+谁在使用
+现在已经有很多公司使用了 NoSQL：
+
+    Google
+    Facebook
+    Mozilla
+    Adobe
+    Foursquare
+    LinkedIn
+    Digg
+    McGraw-Hill Education
+    Vermont Public Radio
+
+
+ MongoDB 工具
+
+有几种可用于MongoDB的管理工具。
+监控
+
+MongoDB提供了网络和系统监控工具Munin，它作为一个插件应用于MongoDB中。
+
+Gangila是MongoDB高性能的系统监视的工具，它作为一个插件应用于MongoDB中。
+
+基于图形界面的开源工具 Cacti, 用于查看CPU负载, 网络带宽利用率,它也提供了一个应用于监控 MongoDB 的插件。
+GUI
+
+    Fang of Mongo – 网页式,由Django和jQuery所构成。
+    Futon4Mongo – 一个CouchDB Futon web的mongodb山寨版。
+    Mongo3 – Ruby写成。
+    MongoHub – 适用于OSX的应用程序。
+    Opricot – 一个基于浏览器的MongoDB控制台, 由PHP撰写而成。
+    Database Master — Windows的mongodb管理工具
+    RockMongo — 最好的PHP语言的MongoDB管理工具，轻量级, 支持多国语言.
+
+MongoDB 应用案例
+
+下面列举一些公司MongoDB的实际应用：
+
+    Craiglist上使用MongoDB的存档数十亿条记录。
+    FourSquare，基于位置的社交网站，在Amazon EC2的服务器上使用MongoDB分享数据。
+    Shutterfly，以互联网为基础的社会和个人出版服务，使用MongoDB的各种持久性数据存储的要求。
+    bit.ly, 一个基于Web的网址缩短服务，使用MongoDB的存储自己的数据。
+    spike.com，一个MTV网络的联营公司， spike.com使用MongoDB的。
+    Intuit公司，一个为小企业和个人的软件和服务提供商，为小型企业使用MongoDB的跟踪用户的数据。
+    sourceforge.net，资源网站查找，创建和发布开源软件免费，使用MongoDB的后端存储。
+    etsy.com ，一个购买和出售手工制作物品网站，使用MongoDB。
+    纽约时报，领先的在线新闻门户网站之一，使用MongoDB。
+    CERN，著名的粒子物理研究所，欧洲核子研究中心大型强子对撞机的数据使用MongoDB。
+
+
+
+MongoDB：地址
+http://www.runoob.com/mongodb/mongodb-capped-collections.html

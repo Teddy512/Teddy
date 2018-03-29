@@ -1,0 +1,110 @@
+
+
+
+python 学习：
+1、
+    Python介绍
+    发展史
+    Python 2 or 3?
+    安装
+    Hello World程序
+    变量
+    用户输入
+    模块初识
+    .pyc是个什么鬼？
+    数据类型初识
+    数据运算
+    表达式if ...else语句
+    表达式for 循环
+    break and continue
+    表达式while 循环
+    作业需求
+
+
+  2、
+    列表、元组操作
+    字符串操作
+    字典操作
+    集合操作
+    文件操作
+    字符编码与转码
+
+  3、1. 函数基本语法及特性
+     2. 参数与局部变量
+     3. 返回值 嵌套函数
+     4.递归
+     5.匿名函数
+     6.函数式编程介绍
+     7.高阶函数
+     8.内置函数
+
+  4、迭代器&生成器
+     装饰器
+     Json & pickle 数据序列化
+
+
+  5、
+    模块介绍
+    time &datetime模块
+    random
+    os
+    sys
+    shutil
+    json & picle
+    shelve
+    xml处理
+    yaml处理
+    configparser
+    hashlib
+    subprocess
+    logging模块
+    re正则表达式
+
+  6
+    面向对象编程介绍
+    为什么要用面向对象进行开发？
+    面向对象的特性：封装、继承、多态
+    类、方法
+    面向对象高级语法部分
+
+    经典类vs新式类　　
+    静态方法、类方法、属性方法
+    类的特殊方法
+    反射
+
+    异常处理
+    Socket开发基础
+
+    Socket语法及相关
+    SocketServer实现多并发　
+    操作系统发展史介绍
+    进程、与线程区别
+    python GIL全局解释器锁
+    线程
+
+    语法
+    join
+    线程锁之Lock\Rlock\信号量
+    将线程变为守护进程
+    Event事件　
+    queue队列
+    生产者消费者模型
+    Queue队列
+    开发一个线程池
+
+    进程
+
+    语法
+    进程间通讯
+    进程池　　
+
+    Gevent协程
+    Select\Poll\Epoll异步IO与事件驱动
+    Python连接Mysql数据库操作
+    RabbitMQ队列
+    Redis\Memcached缓存
+    Paramiko SSH
+    Twsited网络框架
+
+
+
